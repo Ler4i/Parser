@@ -20,6 +20,8 @@ enum class TokenKind
 struct Token {
 	Token(std::string& lexeme, TokenKind kind) : token{ lexeme }, id{ kind }{} //копирование
 	Token(std::string&& lexemе, TokenKind kind) : token(lexemе), id(kind){} //перемещение 
+	Token(TokenKind tk) : token{""}, id{tk} {} //для tkEND
+
 	std::string token; // лексема
 	TokenKind id;
 };
@@ -32,6 +34,8 @@ public:
 	Lexer(std::string& str) {
 		ReadToken(str);
 	}
+
+	static const Token END;
 
 private:
 	TokenKind GetKind(char ch)
@@ -125,6 +129,43 @@ private:
 			auto str = m_buf.substr(0, 1); //операнд и скобки
 			m_tokens.emplace_back(std::string{ str.begin(), str.end() }, kind);
 			m_buf.remove_prefix(1);
+			
+		}
+
+	}
+
+	TokenKind WatchTokenId(){ //посмотреть токен и вернуть его id						std::vector<Token>& m_tokens
+		return m_tokens[m_curPos].id;
+	}
+
+	Token ReturnToken() { //вернуть весь токен (лексему + id)
+		if (m_curPos < m_tokens.size()) {
+			return m_tokens[m_curPos];
+		}
+		else {
+			return  END;
+		}
+		m_curPos++;
+	}
+	
+//private:
+	std::vector<Token> m_tokens{};
+	size_t m_curPos{ 0 };
+
+};
+const Token Lexer::END = Token(TokenKind::tkEND);
+
+//class Token {
+//	Token(TokenType::token) {};
+//
+//	TokenType Type() const { return TokenType::token; }
+//};
+
+
+
+
+
+
 
 			//if (isOperator(kind)) {
 			//	auto str = m_buf.substr(0, 1); //операнд
@@ -139,31 +180,3 @@ private:
 			//	m_buf.remove_prefix(1);
 			//	continue;
 			//}
-			
-		}
-
-	}
-
-	TokenKind WatchTokenId(){ //посмотреть токен и вернуть его id						std::vector<Token>& m_tokens
-		return m_tokens[m_curPos].id;
-	}
-
-	Token ReturnToken() { //вернуть весь токен (лексему + id)
-		if(m_tokens[m_curPos].id != TokenKind::tkEND)
-		if (m_curPos < m_tokens.size()) {
-			return m_tokens[m_curPos];
-		}
-		m_curPos++;
-	}
-	
-//private:
-	std::vector<Token> m_tokens{};
-	size_t m_curPos{ 0 };
-};
-
-
-//class Token {
-//	Token(TokenType::token) {};
-//
-//	TokenType Type() const { return TokenType::token; }
-//};
